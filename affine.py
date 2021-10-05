@@ -5,7 +5,7 @@ import random
 def pass_(x):
   pass
 
-img = cv2.imread('daikei4.png')
+img = cv2.imread('../daikei4.png')
 y_img,x_img = img.shape[0], img.shape[1]
 bgr_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 hsv_img = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2HSV)
@@ -82,12 +82,19 @@ try:
         result_img = cv2.warpPerspective(result_img, matrix, (x_img, y_img))
         print(result_img.shape)
         array = np.float32([0,0])
+        for arr in src_corner:
+          arr = np.append(arr, 1)
+          print(np.matmul(matrix, arr))
+        print("   ")
+        print("   ")
+        print("   ")
 
-        for i in range(len(points)):
-          marked_img = cv2.circle(marked_img,(int(points[i][0]),int(points[i][1])), 10, color_list[i], thickness=3)
-          cv2.perspectiveTransform(points[i], array, matrix)
-          #array = np.matmul(matrix, points[i])
-          result_img = cv2.circle(result_img, (int(array[0]),int(array[1])), 10, color_list[i], thickness=3)
+
+        #for i in range(len(points)):
+        #  marked_img = cv2.circle(marked_img,(int(points[i][0]),int(points[i][1])), 10, color_list[i], thickness=3)
+          #cv2.perspectiveTransform(points[i], array, matrix)
+        #  array = np.matmul(matrix, points[i])
+        #  result_img = cv2.circle(result_img, (int(array[0]),int(array[1])), 10, color_list[i], thickness=3)
 
     cv2.imshow("masked image", marked_img)
     cv2.imshow("result image",result_img)
