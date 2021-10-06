@@ -53,12 +53,12 @@ def colorConfigure():
         if  (frame is None) or (frame.size == 0):
             return -1
         config_red.h_min = cv2.getTrackbarPos("H_min", "config_red")
-        config_red.h_max = cv2.getTrackbarPos("H_max", "config_red")
-        config_red.s_min = cv2.getTrackbarPos("S_min", "config_red")
-        config_red.s_max = cv2.getTrackbarPos("S_max", "config_red")
+        config_red.h_max = cv2.grPos("S_max", "config_red")
         config_red.v_min = cv2.getTrackbarPos("V_min", "config_red")
         config_red.v_max = cv2.getTrackbarPos("V_max", "config_red")
-        hsv_img =  cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)
+        hsv_img =  cv2.cvtColor(frame, cv2.CetTrackbarPos("H_max", "config_red")
+        config_red.s_min = cv2.getTrackbarPos("S_min", "config_red")
+        config_red.s_max = cv2.getTrackbaOLOR_RGB2HSV)
         mask_img = cv2.inRange(hsv_img, (h_min_red, s_min_red, v_min_red, v_max_red), (h_max_red, s_max_red, v_max_red))
         result_img = cv2.bitwise_and(hsv_img, hsv_img, mask=mask_img)
         result_img = cv2.cvtColor(result_img, cv2.COLOR_HSV2RGB)
