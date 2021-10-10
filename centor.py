@@ -76,14 +76,14 @@ def main():
                 message = json.dumps({"x_target":str(mx/imageWidth), "y_target":str(my/imageHeight)})
                 client.sendto(message.encode("UTF-8"), serv_addr)
                 print(message)
-                
-            
+
+
             cv2.imshow("OpenCV Window", result_img)
             key = cv2.waitKey(1)
             if key == 27:                   # k が27(ESC)だったらwhileループを脱出，プログラム終了
                 break
             time.sleep(3)
-    
+
     except(KeyboardInterrupt,SystemExit):
         print("exit")
 
