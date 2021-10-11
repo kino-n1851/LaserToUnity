@@ -55,7 +55,7 @@ try:
 
         for stat in stats:
           result_img = cv2.rectangle(result_img, (stat[0],stat[1]), (stat[0]+stat[2],stat[1]+stat[3]), (255,50,50),2)
-        
+
         image_centor_x = 0
         image_centor_y = 0
         for center in centers:
@@ -78,7 +78,7 @@ try:
         src_corner = np.float32([corners["UL"], corners["UR"], corners["LL"], corners["LR"]])
         dst_corner = np.float32([[0,0],[x_img,0],[0,y_img],[x_img,y_img]])
         matrix = cv2.getPerspectiveTransform(src_corner,dst_corner)
-       
+
         result_img = cv2.warpPerspective(result_img, matrix, (x_img, y_img))
         print(result_img.shape)
         array = np.float32([0,0])
