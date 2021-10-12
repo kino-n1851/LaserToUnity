@@ -32,6 +32,7 @@ redWindowName = "config_red"
 greenWindowName = "config_green"
 imageWidth = None
 imageHeight = None
+ParseMatrix = None
 KEY_ESC = 27
 
 def pass_(*args, **kwargs):
@@ -42,7 +43,7 @@ def init():
     global cap
     global imageWidth,imageHeight
 
-    cap = cv2.VideoCapture(2)
+    cap = cv2.VideoCapture(0)
     imageWidth = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     imageHeight = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
@@ -73,7 +74,8 @@ def cvtMaskedImage(frame, cc):
     mask_img = cv2.inRange(hsv_img, cc.getMin(), cc.getMax())
     result_img = cv2.bitwise_and(hsv_img, hsv_img, mask=mask_img)
     result_img = cv2.cvtColor(result_img, cv2.COLOR_HSV2RGB)
-    result_img = cv2.GaussianBlur(result_img,(3,3),1)
+    result_img = cv2.GaussianBlur(result_img, (3,3), 1)
+    mask_img = cv2.GaussianBlur(mask_img, (2,2), 1)
     return result_img, mask_img
 
 
@@ -114,9 +116,14 @@ def getMatrix(cc,cap):
 
         for stat in stats:
             result_img = cv2.rectangle(result_img, (stat[0],stat[1]), (stat[0]+stat[2],stat[1]+stat[3]), (255,50,50),2)
-        key = cv2.waitKey(1)
-        if key == KEY_ESC:
-            cv2.destroyAllWindows()
+
+        while True:
+            cv2.imshow("corner", result_img)
+            key = cv2.waitKey(1)
+            if key == KEY_ESC:
+                cv2.destroyAllWindows()
+                break
+
         image_centor_x = 0
         image_centor_y = 0
         for center in centers:
@@ -147,10 +154,11 @@ def getMatrix(cc,cap):
         print(src_corner.astype(int))
         out = cv2.perspectiveTransform(np.array([src_corner]),matrix)
         print(out.astype(int))
+        print(np.array([src_corner]))
         #for arr in src_corner:
         #    arr = np.append(arr, 1)
         #    print(np.dot(matrix, arr).astype(int))
-
+        return matrix, src_corner
 
 def main() -> None:
     global cap
@@ -161,7 +169,20 @@ def main() -> None:
     #colorConfigure(config_red, redWindowName, cap)
     colorConfigure(config_green, greenWindowName, cap)
     print("end")
-    getMatrix(config_green, cap)
+    parseMatrix, src_corner= getMatrix(config_green, cap)
+    try:
+        while True:
+            ret,frame = cap.read()
+            if  (frame is None) or (frame.size == 0):
+                print("Broken Image")
+                continue
+            _, masked_img = cvtMaskedImage(frame, config_red)
+            centor = getCentor(masked_img)
+            center = fixCentor(centor, src_corner, parseMatrix)
+            sendUdp(center)
+
+    except(KeyboardInterrupt,SystemExit):
+        print("exit")
 
 if __name__ == "__main__":
     main()
