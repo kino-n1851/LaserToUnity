@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DotGenerator : MonoBehaviour
+public class HitManager : MonoBehaviour
 {
     Transform mTransform;
     private Ray ray;
@@ -11,7 +11,7 @@ public class DotGenerator : MonoBehaviour
     private bool setPos = false;
     [SerializeField] Camera mainCamera;
     [SerializeField] GameObject dotPrefab;
-    private float duratioin = 0.3f;
+    private float duration = 0.3f;
 
     // Start is called before the first frame update
     void Start()
@@ -36,12 +36,13 @@ public class DotGenerator : MonoBehaviour
         {
             GameObject dot = Instantiate(dotPrefab, new Vector3(hit.point.x, hit.point.y, 1), new Quaternion(0, 0, 0, 0)) as GameObject;
             DotController dotController = dot.GetComponent<DotController>();
-            dotController.setDuration(duratioin);
-            
+            dotController.setDuration(duration);
+            Debug.Log(hit.collider.gameObject);
             if (hit.collider.CompareTag("Target"))
             {
                 Debug.Log(hit.collider.gameObject);
-                Destroy(hit.collider.gameObject);
+                TargetController targetController = hit.collider.gameObject.GetComponent<TargetController>();
+                targetController.hit();
             }
         }
     }

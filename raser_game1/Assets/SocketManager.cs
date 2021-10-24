@@ -27,42 +27,49 @@ public class SocketManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
+    }
+
+    void OnApplicationQuit()
+    {
+        UdpServ.Dispose();
+        Debug.Log("aaa");
     }
 }
 
 public class UDPServer
 {
-    /// デリゲート 受信時イベント
     public delegate void ReceivedHandler(string strMsg);
     public ReceivedHandler Received;
     private Thread thread;
-    private int nListenPort;  
+    private int nListenPort;
     private UdpClient client;
     private UdpPosition udpPosition;
     private int gameViewWidth, gameViewHeight;
-    private DotGenerator dotGenerator;
+    private HitManager hitManager;
 
     public UDPServer(int port = 20000)
     {
         nListenPort = port;
         client = null;
     }
-    /// UDP受信 リッスン開始
 
     public void ListenStart()
     {
-        dotGenerator = GameObject.Find("DotGenerator").GetComponent<DotGenerator>();
+        hitManager = GameObject.Find("HitManager").GetComponent<HitManager>();
         gameViewHeight = Screen.height;
         gameViewWidth = Screen.width;
         Debug.Log(gameViewHeight);
         Debug.Log(gameViewWidth);
         client = new UdpClient(nListenPort);
+        //client.ExclusiveAddressUse = true;
+        //client.Connect("127.0.0.1",nListenPort);
+        //client.ExclusiveAddressUse = true;
         thread = new Thread(new ThreadStart(Thread));
         thread.Start();
         Debug.Log("UDP Receive thread start");
     }
-    /// 解放処理
+
     public void Dispose()
     {
         if (thread != null)
@@ -77,7 +84,7 @@ public class UDPServer
             client = null;
         }
     }
-    
+
     private void Thread()
     {
         while (true)
@@ -92,9 +99,9 @@ public class UDPServer
                     rcvMsg = System.Text.Encoding.UTF8.GetString(rcvBytes);
                     if (rcvMsg != string.Empty)
                     {
-                        Debug.Log("UDP受信メッセージ : " + rcvMsg);
+                        //Debug.Log("UDP蜿嶺ｿ｡繝｡繝�繧ｻ繝ｼ繧ｸ : " + rcvMsg);
                         udpPosition = JsonUtility.FromJson<UdpPosition>(rcvMsg);
-                        dotGenerator.setPosion(udpPosition.x_target*gameViewWidth, udpPosition.y_target*-gameViewHeight + gameViewHeight);
+                        hitManager.setPosion(udpPosition.x_target*gameViewWidth, udpPosition.y_target*-gameViewHeight + gameViewHeight);
                         Received?.Invoke(rcvMsg);
                     }
                 }
@@ -109,8 +116,9 @@ public class UDPServer
             }
         }
     }
+
 }
-class UdpPosition 
+class UdpPosition
 {
     public float x_target;
     public float y_target;

@@ -27,7 +27,7 @@ public class DotController : MonoBehaviour
         }
     }
 
-    public void setDuration(float _duration) 
+    public void setDuration(float _duration)
     {
         duration = _duration;
         isDurationSet = true;

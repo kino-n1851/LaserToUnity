@@ -25,7 +25,7 @@ public class BlueController : MonoBehaviour
             _raycast(Input.mousePosition);
             Debug.Log(Input.mousePosition);
         }
-        if (setPos) 
+        if (setPos)
         {
             _raycast(new Vector3(x_target, y_target, 0));
             setPos = false;
@@ -49,7 +49,7 @@ public class BlueController : MonoBehaviour
         }
     }
 
-    public void setPosion(float x, float y) 
+    public void setPosion(float x, float y)
     {
         x_target = x;
         y_target = y;
