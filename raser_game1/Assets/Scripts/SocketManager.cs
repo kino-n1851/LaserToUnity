@@ -35,6 +35,11 @@ public class SocketManager : MonoBehaviour
         UdpServ.Dispose();
         Debug.Log("aaa");
     }
+
+    public void dispose()
+    {
+        UdpServ.Dispose();
+    }
 }
 
 public class UDPServer

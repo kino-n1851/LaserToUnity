@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Target
   - screen
+  - Screen
+  - Start
   layers:
   - Default
   - TransparentFX
