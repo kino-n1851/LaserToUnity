@@ -23,7 +23,7 @@ class ColorConfig:
         return (self.h_max, self.s_max, self.v_max)
 
     def setCfgValue(self, name):
-        """トラックバー値の保存"""
+
         windowName = str(name)
         self.h_min = cv2.getTrackbarPos("H_min", windowName)
         self.h_max = cv2.getTrackbarPos("H_max", windowName)
@@ -60,9 +60,57 @@ KEY_ESC = 27
 CAMERA = 0
 DO_MONITOR = True
 LASER_SIZE = 2
+poly_centors = []
+poly_cp_frame = None
+
 
 def pass_(*args, **kwargs):
     pass
+
+def draw_mark(event, x, y, flags, params):
+    global poly_centors
+    global poly_cp_frame
+    if event == cv2.EVENT_LBUTTONDOWN:
+        cv2.drawMarker(poly_cp_frame, (x, y), (50,50, 255),markerSize=10)
+        poly_centors.append((x,y))
+
+def makePolyMask():
+    global poly_centors
+    global poly_cp_frame
+    try:
+        ret,frame = cap.read()
+        if (frame is None) or (frame.size == 0):
+            print("Broken Image")
+            return np.full((image_height, image_width, 1), 255, dtype=np.uint8)
+        poly_cp_frame = frame.copy()
+        mask_zero = np.full((int(image_height), int(image_width), 1), 0, dtype=np.uint8)
+        cp_mask_poly = mask_zero.copy()
+        poly_centors = []
+        cv2.namedWindow("polymask")
+        cv2.setMouseCallback("polymask",draw_mark)
+        while True:
+            cv2.imshow("polymask",poly_cp_frame)
+            key = cv2.waitKey(1)
+            if key == KEY_ESC:
+                break
+            elif key == ord('q'):
+                poly_centors = []
+                poly_cp_frame = frame.copy()
+                cp_mask_poly = mask_zero.copy()
+            elif key == ord('e'):
+                poly_centors = []
+            elif key == ord('a'):
+                print(poly_centors)
+                if len(poly_centors) < 2:
+                    print("marker are too few")
+                    continue
+                points = np.array(poly_centors)
+                cv2.fillConvexPoly(poly_cp_frame, points, (255, 255, 0))
+                cv2.fillConvexPoly(cp_mask_poly, points, 255)
+        cv2.destroyAllWindows()
+        return cp_mask_poly
+    except (KeyboardInterrupt, SystemExit):
+        return np.full((image_height, image_width, 1), 255, dtype=np.uint8)
 
 def createCfgWindow(name):
     """色の範囲設定用ウィンドウの作成"""
@@ -70,17 +118,18 @@ def createCfgWindow(name):
     windowName = str(name)
     cv2.namedWindow(windowName)
     cv2.createTrackbar("H_min", windowName, 0, 179, pass_)# Hueの最大値は179
-    cv2.createTrackbar("H_max", windowName, 128, 179, pass_)
-    cv2.createTrackbar("S_min", windowName, 128, 255, pass_)
+    cv2.createTrackbar("H_max", windowName, 179, 179, pass_)
+    cv2.createTrackbar("S_min", windowName, 0, 255, pass_)
     cv2.createTrackbar("S_max", windowName, 255, 255, pass_)
-    cv2.createTrackbar("V_min", windowName, 128, 255, pass_)
+    cv2.createTrackbar("V_min", windowName, 0, 255, pass_)
     cv2.createTrackbar("V_max", windowName, 255, 255, pass_)
 
-def cvtMaskedImage(frame, cc):
+def cvtMaskedImage(frame, cc, poly_mask):
     """設定値からマスク後のイメージを生成"""
     #TODO 取り込み範囲指定マスクの作成
     hsv_img =  cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)
     mask_img = cv2.inRange(hsv_img, cc.getMin(), cc.getMax())
+    mask_img = cv2.bitwise_and(mask_img, mask_img, mask=poly_mask)
     result_img = cv2.bitwise_and(hsv_img, hsv_img, mask=mask_img)
     result_img = cv2.cvtColor(result_img, cv2.COLOR_HSV2RGB)
     result_img = cv2.GaussianBlur(result_img, (3,3), 1)
@@ -88,7 +137,7 @@ def cvtMaskedImage(frame, cc):
     return result_img, mask_img
 
 
-def colorConfigure(cc, windowName, cap):
+def colorConfigure(cc, windowName, cap, poly_mask):
     """色設定"""
 
     createCfgWindow(windowName)
@@ -98,11 +147,11 @@ def colorConfigure(cc, windowName, cap):
             raise FrameCaptureFailed
 
         cc.setCfgValue(windowName)
-        result_img, _ = cvtMaskedImage(frame, cc)
+        result_img, _ = cvtMaskedImage(frame, cc, poly_mask)
         cv2.imshow(windowName, result_img)
 
         key = cv2.waitKey(1)
-        if key == KEY_ESC:
+        if key == ord('a'):
             cc.updated = True
             pp(vars(cc))
             cv2.destroyAllWindows()
@@ -115,14 +164,14 @@ def getConnectedComponents(img):
     centers = np.delete(centers, 0, 0)
     return num_labels, stats, centers
 
-def getMatrix(cc,cap):
+def getMatrix(cc,cap, poly_mask):
     """四隅のマーカーを用いた補正値算出"""
     global image_width,image_height
 
     ret, frame = cap.read()
     if(frame is None) or (frame.size == 0):
         raise FrameCaptureFailed
-    result_img, mask_img = cvtMaskedImage(frame, cc)
+    result_img, mask_img = cvtMaskedImage(frame, cc, poly_mask)
     num_labels, stats, centers = getConnectedComponents(mask_img)
 
     if num_labels >= 4:
@@ -136,9 +185,13 @@ def getMatrix(cc,cap):
         while True:
             cv2.imshow("corner", result_img)
             key = cv2.waitKey(1)
-            if key == KEY_ESC:
+            if key == ord('a'):
                 cv2.destroyAllWindows()
                 break
+            elif key == ord('q'):
+                cc.updated = False
+                cv2.destroyAllWindows()
+                return -1, 0, 0
 
         image_center_x = sum(c[0] for c in centers)/4
         image_center_y = sum(c[1] for c in centers)/4
@@ -149,7 +202,8 @@ def getMatrix(cc,cap):
         if len(corners) < 4:
             print (corners)
             print("corner_markers are invalid.")
-            raise CornersNotFound
+            cc.updated = False
+            return -1, 0, 0
 
         src_corner = np.float32([corners[(LEFT,UPPER)], corners[(RIGHT,UPPER)], corners[(LEFT,LOWER)], corners[(RIGHT,LOWER)]])
         print(src_corner)
@@ -158,7 +212,7 @@ def getMatrix(cc,cap):
         print(dst_corner)
         matrix = cv2.getPerspectiveTransform(src_corner,dst_corner)
         print(matrix)
-        return matrix, src_corner
+        return 0, matrix, src_corner
 
 def getCenter(img):
     """赤点の重心算出"""
@@ -211,10 +265,12 @@ def main() -> None:
     client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     if(DO_MONITOR):
         filledImg = np.full((int(image_height),int(image_width), 3), 200, dtype=np.uint8)
-
-    colorConfigure(config_red, RED_WINDOW_NAME, cap)
-    colorConfigure(config_green, GREEN_WINDOW_NAME, cap)
-    parse_matrix, src_corner = getMatrix(config_green, cap)
+    poly_mask = makePolyMask()
+    colorConfigure(config_red, RED_WINDOW_NAME, cap, poly_mask)
+    st = -1
+    while st != 0:
+        colorConfigure(config_green, GREEN_WINDOW_NAME, cap, poly_mask)
+        st, parse_matrix, src_corner = getMatrix(config_green, cap, poly_mask)
 
     try:
         while True:
@@ -222,7 +278,7 @@ def main() -> None:
             if  (frame is None) or (frame.size == 0):
                 print("Broken Image")
                 continue
-            _, masked_img = cvtMaskedImage(frame, config_red)
+            _, masked_img = cvtMaskedImage(frame, config_red, poly_mask)
             center = getCenter(masked_img)
             center, corner= fixCenter(center, src_corner, parse_matrix)
             sendUdp(center, corner)
