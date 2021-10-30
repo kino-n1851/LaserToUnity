@@ -34,6 +34,7 @@ public class ScoreManager : MonoBehaviour
 
     public void finish()
     {
+        score = (int)(score*1.3f);
         finishScore.text = "Score: " + score.ToString();
         finishObject.SetActive(true);
     }

@@ -53,6 +53,7 @@ public class TargetController : MonoBehaviour
             scoreManager.addResult("miss");
             seManager.playSE("buzzer");
             targetGenerator.decTarget();
+            timeManager.setCombo(0);
             Destroy(target);
         }
     }
@@ -70,8 +71,8 @@ public class TargetController : MonoBehaviour
             //good
             seManager.playSE("hit");
             scoreManager.addResult("good");
-            if(combo <= 10)scoreManager.getScore((int)((1 + (Acceleration - 1) * 0.5) * GOODSCORE * (1 + 0.05 * combo)));
-            else scoreManager.getScore((int)((1 + (Acceleration - 0.5f)) * GOODSCORE * 2));
+            if(combo <= 10)scoreManager.getScore((int)(GOODSCORE * (1 + 0.05 * combo)));
+            else scoreManager.getScore((int)(GOODSCORE * 2));
             timeManager.setGood(goodness + DIFFICULTY * 0.5f);
             timeManager.setAccel(Acceleration = 1 + goodness * 0.1f);
         }else
@@ -79,8 +80,8 @@ public class TargetController : MonoBehaviour
             //perf
             seManager.playSE("hit");
             scoreManager.addResult("perfect");
-            if (combo <= 10)scoreManager.getScore((int)((1 + (Acceleration - 1) * 0.5) * PERFECTSCORE * (1 + 0.05 * combo)));
-            else scoreManager.getScore((int)((1 + (Acceleration - 1) * 0.5) * PERFECTSCORE * 2));
+            if (combo <= 10)scoreManager.getScore((int)(PERFECTSCORE * (1 + 0.05 * combo)));
+            else scoreManager.getScore((int)(PERFECTSCORE * 2));
             timeManager.setGood(goodness + DIFFICULTY * 1);
             timeManager.setAccel(Acceleration = 1 + goodness * 0.1f);
         }
