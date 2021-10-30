@@ -8,7 +8,7 @@ public class TargetGenerator : MonoBehaviour
     [SerializeField] Camera mainCamera;
     private  int screenWidth, screenHeight;
     private float screenWidthMargin, screenHeightMargin;
-    private int TARGETNUMBER = 5;
+    private int TARGETNUMBER = 3;
     private int activeTarget = 0;
     // Start is called before the first frame update
     void Start()
@@ -34,7 +34,8 @@ public class TargetGenerator : MonoBehaviour
                         Random.Range(screenHeightMargin, screenHeight - screenHeightMargin), 9f));
         GameObject target = Instantiate(targetPrefab, randomPos, new Quaternion(0, 0, 0, 0)) as GameObject;
         TargetController targetController = target.GetComponent<TargetController>();
-        targetController.initialize(100, duration);
+        activeTarget += 1;
+        targetController.initialize(duration);
     }
 
     public void decTarget()

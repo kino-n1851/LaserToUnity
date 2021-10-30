@@ -46,10 +46,10 @@ public class HitManager : MonoBehaviour
             GameObject dot = Instantiate(dotPrefab, new Vector3(hit.point.x, hit.point.y, 1), new Quaternion(0, 0, 0, 0)) as GameObject;
             DotController dotController = dot.GetComponent<DotController>();
             dotController.setDuration(duration);
-            Debug.Log(hit.collider.gameObject);
+            //Debug.Log(hit.collider.gameObject);
             if (hit.collider.CompareTag("Target"))
             {
-                Debug.Log(hit.collider.gameObject);
+                //Debug.Log(hit.collider.gameObject);
                 TargetController targetController = hit.collider.gameObject.GetComponent<TargetController>();
                 targetController.hit();
             }else if(hit.collider.CompareTag("Start"))

@@ -12,7 +12,7 @@ public class TimeManager : MonoBehaviour
     private int DISPLAYTIME = 4;
     private int DISPLAYINTERVAL = 3;
     private float Acceleration = 1.0f;
-    private float goodness = 0.0f;
+    private float goodness = 2.0f;
 
     private bool isStarted = false;
     private bool isFinished = false;

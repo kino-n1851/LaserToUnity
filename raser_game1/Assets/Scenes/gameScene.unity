@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.37311918, g: 0.3807398, b: 0.35872716, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -602,7 +602,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.08986421, g: 0.12116057, b: 0.3584906, a: 0}
+  m_BackGroundColor: {r: 0, g: 0.0627451, b: 0.47843137, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1425,7 +1425,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 749e37cd4f0c6da47b4ea715b24d46a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetPrefab: {fileID: 1214722956595871756, guid: 5f91d07cd6b1bea4f8e54a9e98364f41, type: 3}
+  targetPrefab: {fileID: 1214722956595871756, guid: 5f91d07cd6b1bea4f8e54a9e98364f41,
+    type: 3}
   mainCamera: {fileID: 963194227}
 --- !u!1 &1942062467
 GameObject:

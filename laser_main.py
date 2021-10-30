@@ -57,7 +57,7 @@ parse_matrix = None
 client = None
 filledImg = None
 KEY_ESC = 27
-CAMERA = 2
+CAMERA = 0
 DO_MONITOR = True
 LASER_SIZE = 4
 poly_centors = []
@@ -98,7 +98,7 @@ def makePolyMask():
                 ret,frame = cap.read()
                 if (frame is None) or (frame.size == 0):
                     print("Broken Image")
-                poly_cp_frame = frame
+                poly_cp_frame = frame.copy()
                 cp_mask_poly = mask_zero.copy()
             elif key == ord('e'):
                 poly_centors = []
